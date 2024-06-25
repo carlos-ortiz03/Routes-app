@@ -1,0 +1,26 @@
+# Node modules
+/backend/node_modules/
+/frontend/node_modules/
+
+# Environment variables
+/backend/.env
+
+# Logs
+logs
+*.log
+
+# Lock files
+/backend/package-lock.json
+/frontend/package-lock.json
+
+# IDE/Editor files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# MacOS
+.DS_Store

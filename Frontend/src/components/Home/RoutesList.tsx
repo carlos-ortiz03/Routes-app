@@ -1,8 +1,9 @@
 import React from "react";
+import { Route } from "../types"; // Import types from types.ts
 
 interface ListProps {
   routes: any[];
-  onSelectRoute: (route: any) => void;
+  onSelectRoute: (route: Route) => void;
 }
 
 const List: React.FC<ListProps> = ({ routes, onSelectRoute }) => {

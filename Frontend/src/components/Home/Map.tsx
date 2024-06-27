@@ -1,34 +1,53 @@
-import React from "react";
-import {
-  GoogleMap,
-  LoadScript,
-  DirectionsRenderer,
-} from "@react-google-maps/api";
+import React, { useEffect, useState } from "react";
+import { Map, Marker } from "@vis.gl/react-google-maps";
 
 const containerStyle = {
   width: "100%",
   height: "100%",
 };
 
-const center = {
-  lat: 0,
-  lng: 0,
-};
+const MapComponent: React.FC = () => {
+  const [center, setCenter] = useState({ lat: -34.397, lng: 150.644 });
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
-interface MapProps {
-  directions: any;
-}
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          setCenter(pos);
+          setUserLocation(pos);
+        },
+        () => {
+          handleLocationError(true);
+        }
+      );
+    } else {
+      handleLocationError(false);
+    }
+  }, []);
 
-const MapComponent: React.FC<MapProps> = ({ directions }) => {
-  const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+  const handleLocationError = (browserHasGeolocation: boolean) => {
+    const errorMessage = browserHasGeolocation
+      ? "Error: The Geolocation service failed."
+      : "Error: Your browser doesn't support geolocation.";
+    console.error(errorMessage);
+  };
 
   return (
-    <LoadScript googleMapsApiKey={apiKey}>
-      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={10}>
-        {directions && <DirectionsRenderer directions={directions} />}
-      </GoogleMap>
-    </LoadScript>
+    <div style={containerStyle}>
+      <Map center={center} zoom={14}>
+        {userLocation && (
+          <Marker position={userLocation} title="You are here" />
+        )}
+      </Map>
+    </div>
   );
 };
-
 export default MapComponent;

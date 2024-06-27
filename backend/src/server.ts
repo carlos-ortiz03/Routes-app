@@ -1,12 +1,13 @@
+import dotenv from "dotenv";
+dotenv.config(); // Call dotenv.config() at the top
+
 import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import authRouter from "./routes/auth.route";
+import mapsRouter from "./routes/maps.route";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { errorHandlingMiddleware, CustomError } from "./utils/error";
-
-dotenv.config();
 
 mongoose
   .connect(process.env.MONGO_URI as string)
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
+app.use("/api/maps", mapsRouter);
 
 app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
   const statusCode = err.statusCode || 500;

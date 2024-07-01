@@ -1,3 +1,4 @@
+// src/components/Home/RoutesList.tsx
 import React from "react";
 
 interface ListProps {
@@ -11,7 +12,7 @@ const RoutesList: React.FC<ListProps> = ({ routes, onSelectRoute }) => {
       {routes.map((route, index) => (
         <li key={index} onClick={() => onSelectRoute(route)}>
           {route.summary || `Route ${index + 1}`} -{" "}
-          {route.legs[0]?.distance?.text}
+          {route.legs[0].distance?.text}
         </li>
       ))}
     </ul>

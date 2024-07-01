@@ -3,14 +3,15 @@ import Form from "./MileageForm";
 import List from "./RoutesList";
 import MapComponent from "./Map";
 import axios from "axios";
+import { Route } from "../types";
 
 const MainContent: React.FC = () => {
   const [routes, setRoutes] = useState<google.maps.DirectionsRoute[]>([]);
   const [selectedRoute, setSelectedRoute] =
     useState<google.maps.DirectionsResult | null>(null);
   const [center, setCenter] = useState<{ lat: number; lng: number }>({
-    lat: 0,
-    lng: 0,
+    lat: -34.397,
+    lng: 150.644,
   });
   const [userLocation, setUserLocation] = useState<{
     lat: number;
@@ -29,13 +30,20 @@ const MainContent: React.FC = () => {
           setUserLocation(pos);
         },
         () => {
-          console.error("Error: The Geolocation service failed.");
+          handleLocationError(true);
         }
       );
     } else {
-      console.error("Error: Your browser doesn't support geolocation.");
+      handleLocationError(false);
     }
   }, []);
+
+  const handleLocationError = (browserHasGeolocation: boolean) => {
+    const errorMessage = browserHasGeolocation
+      ? "Error: The Geolocation service failed."
+      : "Error: Your browser doesn't support geolocation.";
+    console.error(errorMessage);
+  };
 
   const handleSearch = async (location: string, mileage: number) => {
     console.log("Initiating search with the following parameters:");
@@ -64,7 +72,7 @@ const MainContent: React.FC = () => {
                 acc + (leg.distance?.value || 0),
               0
             ) / 1000; // distance in km
-          return routeDistance <= mileage;
+          return routeDistance && routeDistance <= mileage;
         }
       );
 
@@ -78,18 +86,28 @@ const MainContent: React.FC = () => {
 
   const handleSelectRoute = (route: google.maps.DirectionsRoute) => {
     console.log("Selected route:", route);
-    const request: google.maps.DirectionsRequest = {
-      origin: route.legs[0].start_location,
-      destination: route.legs[0].end_location,
+    const dummyRequest: google.maps.DirectionsRequest = {
+      origin: "",
+      destination: "",
       travelMode: google.maps.TravelMode.DRIVING,
     };
-    setSelectedRoute({ routes: [route], request });
+    setSelectedRoute({ routes: [route], request: dummyRequest }); // Wrap the route in a DirectionsResult with a dummy request
+  };
+
+  const handlePlaceSelected = (place: google.maps.places.PlaceResult) => {
+    if (place.geometry) {
+      const newCenter = {
+        lat: place.geometry.location?.lat() || center.lat,
+        lng: place.geometry.location?.lng() || center.lng,
+      };
+      setCenter(newCenter);
+    }
   };
 
   return (
     <div className="flex flex-col w-3/4 p-4">
       <div className="mb-4">
-        <Form onSearch={handleSearch} />
+        <Form onSearch={handleSearch} onPlaceSelected={handlePlaceSelected} />
       </div>
       <div className="mb-4 overflow-y-auto">
         <h2 className="text-xl font-bold mb-2">Routes Generated</h2>

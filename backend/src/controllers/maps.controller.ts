@@ -2,20 +2,10 @@ import { Request, Response } from "express";
 import axios from "axios";
 
 const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-
-if (!apiKey) {
-  console.error("Google Maps API key is not set");
-} else {
-  console.log("Google Maps API key loaded successfully");
-}
+console.log("Google Maps API key loaded successfully:", apiKey);
 
 export const getDirections = async (req: Request, res: Response) => {
   const { origin, destination } = req.query;
-
-  if (!apiKey) {
-    console.error("Google Maps API key is not set");
-    return res.status(500).json({ error: "Google Maps API key is not set" });
-  }
 
   try {
     const response = await axios.get(
@@ -25,7 +15,7 @@ export const getDirections = async (req: Request, res: Response) => {
           origin,
           destination,
           key: apiKey,
-          alternatives: true,
+          alternatives: true, // Ensure this parameter is included
         },
       }
     );

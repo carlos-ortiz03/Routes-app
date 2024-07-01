@@ -1,53 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { Map, Marker } from "@vis.gl/react-google-maps";
+import {
+  GoogleMap,
+  LoadScript,
+  Marker,
+  DirectionsRenderer,
+} from "@react-google-maps/api";
 
 const containerStyle = {
   width: "100%",
   height: "100%",
 };
 
-const MapComponent: React.FC = () => {
-  const [center, setCenter] = useState({ lat: -34.397, lng: 150.644 });
-  const [userLocation, setUserLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
+interface MapComponentProps {
+  center: { lat: number; lng: number };
+  directions: google.maps.DirectionsResult | null;
+}
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const pos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setCenter(pos);
-          setUserLocation(pos);
-        },
-        () => {
-          handleLocationError(true);
-        }
-      );
-    } else {
-      handleLocationError(false);
-    }
-  }, []);
-
-  const handleLocationError = (browserHasGeolocation: boolean) => {
-    const errorMessage = browserHasGeolocation
-      ? "Error: The Geolocation service failed."
-      : "Error: Your browser doesn't support geolocation.";
-    console.error(errorMessage);
-  };
+const MapComponent: React.FC<MapComponentProps> = ({ center, directions }) => {
+  const apiKey = "AIzaSyCckibEMMSLLsKIW8YRUNHdmtv0AzHcQYI";
 
   return (
-    <div style={containerStyle}>
-      <Map center={center} zoom={14}>
-        {userLocation && (
-          <Marker position={userLocation} title="You are here" />
-        )}
-      </Map>
-    </div>
+    <LoadScript googleMapsApiKey={apiKey}>
+      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={14}>
+        {directions && <DirectionsRenderer directions={directions} />}
+        <Marker position={center} title="You are here" />
+      </GoogleMap>
+    </LoadScript>
   );
 };
+
 export default MapComponent;

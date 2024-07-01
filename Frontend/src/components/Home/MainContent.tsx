@@ -1,19 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Form from "./MileageForm";
 import List from "./RoutesList";
 import MapComponent from "./Map";
 import axios from "axios";
-import { Route } from "../types";
-import MapProvider from "./MapProvider";
 
 const MainContent: React.FC = () => {
-  const [routes, setRoutes] = useState<Route[]>([]);
-  const [selectedRoute, setSelectedRoute] = useState<any>(null);
+  const [routes, setRoutes] = useState<google.maps.DirectionsRoute[]>([]);
+  const [selectedRoute, setSelectedRoute] =
+    useState<google.maps.DirectionsResult | null>(null);
+  const [center, setCenter] = useState<{ lat: number; lng: number }>({
+    lat: 0,
+    lng: 0,
+  });
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          setCenter(pos);
+          setUserLocation(pos);
+        },
+        () => {
+          console.error("Error: The Geolocation service failed.");
+        }
+      );
+    } else {
+      console.error("Error: Your browser doesn't support geolocation.");
+    }
+  }, []);
 
   const handleSearch = async (location: string, mileage: number) => {
     console.log("Initiating search with the following parameters:");
-    console.log(`Location: ${location}`);
-    console.log(`Mileage: ${mileage}`);
+    console.log("Location:", location);
+    console.log("Mileage:", mileage);
 
     try {
       const response = await axios.get(
@@ -23,58 +50,55 @@ const MainContent: React.FC = () => {
             origin: location || "current location",
             destination: location || "current location",
           },
-          withCredentials: true,
         }
       );
 
-      console.log("Received response from backend:");
-      console.log(response.data);
+      console.log("Received response from backend:", response.data);
 
-      const filteredRoutes: Route[] = response.data.routes.filter(
-        (route: Route) => {
+      // Filter routes based on mileage
+      const filteredRoutes = response.data.routes.filter(
+        (route: google.maps.DirectionsRoute) => {
           const routeDistance =
             route.legs.reduce(
-              (acc: number, leg) => acc + leg.distance.value,
+              (acc: number, leg: google.maps.DirectionsLeg) =>
+                acc + (leg.distance?.value || 0),
               0
-            ) / 1000;
+            ) / 1000; // distance in km
           return routeDistance <= mileage;
         }
       );
 
-      console.log("Filtered routes based on mileage:");
-      console.log(filteredRoutes);
+      console.log("Filtered routes based on mileage:", filteredRoutes);
 
       setRoutes(filteredRoutes);
-
-      if (filteredRoutes.length > 0) {
-        setSelectedRoute(filteredRoutes[0]);
-      }
     } catch (error) {
       console.error("Error fetching routes:", error);
     }
   };
 
-  const handleSelectRoute = (route: Route) => {
-    console.log("Selected route:");
-    console.log(route);
-    setSelectedRoute(route);
+  const handleSelectRoute = (route: google.maps.DirectionsRoute) => {
+    console.log("Selected route:", route);
+    const request: google.maps.DirectionsRequest = {
+      origin: route.legs[0].start_location,
+      destination: route.legs[0].end_location,
+      travelMode: google.maps.TravelMode.DRIVING,
+    };
+    setSelectedRoute({ routes: [route], request });
   };
 
   return (
-    <MapProvider>
-      <div className="flex flex-col w-3/4 p-4">
-        <div className="mb-4">
-          <Form onSearch={handleSearch} />
-        </div>
-        <div className="mb-4 overflow-y-auto">
-          <h2 className="text-xl font-bold mb-2">Routes Generated</h2>
-          <List routes={routes} onSelectRoute={handleSelectRoute} />
-        </div>
-        <div className="flex-grow">
-          <MapComponent />
-        </div>
+    <div className="flex flex-col w-3/4 p-4">
+      <div className="mb-4">
+        <Form onSearch={handleSearch} />
       </div>
-    </MapProvider>
+      <div className="mb-4 overflow-y-auto">
+        <h2 className="text-xl font-bold mb-2">Routes Generated</h2>
+        <List routes={routes} onSelectRoute={handleSelectRoute} />
+      </div>
+      <div className="flex-grow">
+        <MapComponent center={center} directions={selectedRoute} />
+      </div>
+    </div>
   );
 };
 

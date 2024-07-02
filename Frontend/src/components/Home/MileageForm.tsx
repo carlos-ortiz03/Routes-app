@@ -1,90 +1,81 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Autocomplete } from "@react-google-maps/api";
 
 interface FormProps {
-  onSearch: (location: string, mileage: number) => void;
-  onPlaceSelected: (place: google.maps.places.PlaceResult) => void;
+  onSearch: (
+    location: string,
+    mileage: number,
+    travelMode: google.maps.TravelMode
+  ) => void;
 }
 
-const Form: React.FC<FormProps> = ({ onSearch, onPlaceSelected }) => {
+const Form: React.FC<FormProps> = ({ onSearch }) => {
+  const [location, setLocation] = useState("");
   const [mileage, setMileage] = useState(0);
-  const [autocomplete, setAutocomplete] =
-    useState<google.maps.places.Autocomplete | null>(null);
+  const [travelMode, setTravelMode] = useState<google.maps.TravelMode>(
+    google.maps.TravelMode.WALKING
+  );
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
-    setAutocomplete(autocompleteInstance);
-  };
-
-  const onPlaceChanged = () => {
-    if (autocomplete !== null) {
-      const place = autocomplete.getPlace();
-      onPlaceSelected(place);
-    }
-  };
-
-  const handleSearch = () => {
-    const location = autocomplete?.getPlace()?.formatted_address || "";
-    onSearch(location, mileage);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch(location, mileage, travelMode);
   };
 
   return (
-    <div>
-      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-        <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
-          <input
-            type="text"
-            placeholder="Search for location"
-            style={{
-              boxSizing: `border-box`,
-              border: `1px solid transparent`,
-              width: `240px`,
-              height: `32px`,
-              padding: `0 12px`,
-              borderRadius: `3px`,
-              boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
-              fontSize: `14px`,
-              outline: `none`,
-              textOverflow: `ellipses`,
-              position: "relative",
+    <form onSubmit={handleSubmit}>
+      <div className="flex space-x-4">
+        <div>
+          <Autocomplete
+            onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
+            onPlaceChanged={() => {
+              if (autocompleteRef.current) {
+                const place = autocompleteRef.current.getPlace();
+                if (place) {
+                  setLocation(place.formatted_address || "");
+                }
+              }
             }}
+          >
+            <input
+              type="text"
+              placeholder="Search for location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="border p-2 w-full"
+            />
+          </Autocomplete>
+        </div>
+        <div>
+          <input
+            type="number"
+            placeholder="Enter mileage"
+            value={mileage}
+            onChange={(e) => setMileage(Number(e.target.value))}
+            className="border p-2 w-full"
           />
-        </Autocomplete>
-        <input
-          type="number"
-          value={mileage}
-          onChange={(e) => setMileage(Number(e.target.value))}
-          placeholder="Mileage"
-          style={{
-            boxSizing: `border-box`,
-            border: `1px solid transparent`,
-            width: `80px`,
-            height: `32px`,
-            padding: `0 12px`,
-            borderRadius: `3px`,
-            boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
-            fontSize: `14px`,
-            outline: `none`,
-          }}
-        />
-        <button
-          onClick={handleSearch}
-          style={{
-            height: `36px`,
-            padding: `0 12px`,
-            borderRadius: `3px`,
-            boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
-            fontSize: `14px`,
-            outline: `none`,
-            backgroundColor: `#007bff`,
-            color: `#fff`,
-            border: `none`,
-            cursor: `pointer`,
-          }}
-        >
-          Find Routes
-        </button>
+        </div>
+        <div>
+          <select
+            value={travelMode}
+            onChange={(e) =>
+              setTravelMode(e.target.value as google.maps.TravelMode)
+            }
+            className="border p-2 w-full"
+          >
+            <option value={google.maps.TravelMode.WALKING}>Walking</option>
+            <option value={google.maps.TravelMode.DRIVING}>Driving</option>
+            <option value={google.maps.TravelMode.BICYCLING}>Bicycling</option>
+            <option value={google.maps.TravelMode.TRANSIT}>Transit</option>
+          </select>
+        </div>
+        <div>
+          <button type="submit" className="bg-blue-500 text-white p-2">
+            Find Routes
+          </button>
+        </div>
       </div>
-    </div>
+    </form>
   );
 };
 

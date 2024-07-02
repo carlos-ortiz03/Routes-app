@@ -13,7 +13,9 @@ const MapComponent: React.FC<{
   return (
     <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={10}>
       <Marker position={center} />
-      {directions && <DirectionsRenderer directions={directions} />}
+      {directions && directions.routes.length > 0 && (
+        <DirectionsRenderer directions={directions} />
+      )}
     </GoogleMap>
   );
 };

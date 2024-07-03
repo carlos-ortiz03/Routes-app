@@ -1,21 +1,21 @@
-import React, { useState, useRef } from "react";
-import { Autocomplete } from "@react-google-maps/api";
+import React, { useState } from "react";
+import AutocompleteInput from "./AutocompleteInput";
+import { Place } from "../types";
 
 interface FormProps {
-  onSearch: (
-    location: string,
-    mileage: number,
-    travelMode: google.maps.TravelMode
-  ) => void;
+  onSearch: (location: string, mileage: number, travelMode: string) => void;
+  onSelectPlace: (place: Place) => void;
 }
 
-const Form: React.FC<FormProps> = ({ onSearch }) => {
+const Form: React.FC<FormProps> = ({ onSearch, onSelectPlace }) => {
   const [location, setLocation] = useState("");
   const [mileage, setMileage] = useState(0);
-  const [travelMode, setTravelMode] = useState<google.maps.TravelMode>(
-    google.maps.TravelMode.WALKING
-  );
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const [travelMode, setTravelMode] = useState("walking");
+
+  const handleSelectPlace = (place: Place) => {
+    setLocation(place.place_name);
+    onSelectPlace(place);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,26 +25,8 @@ const Form: React.FC<FormProps> = ({ onSearch }) => {
   return (
     <form onSubmit={handleSubmit}>
       <div className="flex space-x-4">
-        <div>
-          <Autocomplete
-            onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
-            onPlaceChanged={() => {
-              if (autocompleteRef.current) {
-                const place = autocompleteRef.current.getPlace();
-                if (place) {
-                  setLocation(place.formatted_address || "");
-                }
-              }
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Search for location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="border p-2 w-full"
-            />
-          </Autocomplete>
+        <div className="relative">
+          <AutocompleteInput onSelect={handleSelectPlace} />
         </div>
         <div>
           <input
@@ -58,15 +40,12 @@ const Form: React.FC<FormProps> = ({ onSearch }) => {
         <div>
           <select
             value={travelMode}
-            onChange={(e) =>
-              setTravelMode(e.target.value as google.maps.TravelMode)
-            }
+            onChange={(e) => setTravelMode(e.target.value)}
             className="border p-2 w-full"
           >
-            <option value={google.maps.TravelMode.WALKING}>Walking</option>
-            <option value={google.maps.TravelMode.DRIVING}>Driving</option>
-            <option value={google.maps.TravelMode.BICYCLING}>Bicycling</option>
-            <option value={google.maps.TravelMode.TRANSIT}>Transit</option>
+            <option value="walking">Walking</option>
+            <option value="driving">Driving</option>
+            <option value="cycling">Bicycling</option>
           </select>
         </div>
         <div>

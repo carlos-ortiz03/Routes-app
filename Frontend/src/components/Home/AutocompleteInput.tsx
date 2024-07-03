@@ -1,34 +1,73 @@
-// src/components/AutocompleteInput.tsx
-import React, { useEffect, useRef } from "react";
+import React, { useState } from "react";
+import axios from "axios";
+import { Place } from "../types";
 
-const AutocompleteInput: React.FC = () => {
-  const inputRef = useRef<HTMLInputElement | null>(null);
+const AutocompleteInput: React.FC<{ onSelect: (place: Place) => void }> = ({
+  onSelect,
+}) => {
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<Place[]>([]);
 
-  useEffect(() => {
-    if (!window.google) {
-      console.error("Google Maps JavaScript API library must be loaded.");
-      return;
-    }
+  const handleInputChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value;
+    setQuery(value);
 
-    if (inputRef.current) {
-      const autocomplete = new google.maps.places.Autocomplete(
-        inputRef.current,
+    if (value.length > 2) {
+      const response = await axios.get(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${value}.json`,
         {
-          types: ["address"],
-          componentRestrictions: { country: "us" },
+          params: {
+            access_token:
+              "pk.eyJ1IjoiY2FybG9zLW9ydGl6MDMiLCJhIjoiY2x5NG5wM3dnMDF4dDJscHZmaWtpNXJhMyJ9.1QXHEwsZIdSRSNZdBlULlg",
+            autocomplete: true,
+          },
         }
       );
 
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        if (place.geometry) {
-          console.log("Selected place:", place);
-        }
-      });
+      setSuggestions(
+        response.data.features.map((feature: any) => ({
+          id: feature.id,
+          place_name: feature.place_name,
+          geometry: feature.geometry,
+        }))
+      );
+    } else {
+      setSuggestions([]);
     }
-  }, []);
+  };
 
-  return <input ref={inputRef} type="text" placeholder="Enter an address" />;
+  const handleSuggestionClick = (suggestion: Place) => {
+    setQuery(suggestion.place_name);
+    setSuggestions([]);
+    onSelect(suggestion);
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={query}
+        onChange={handleInputChange}
+        placeholder="Enter an address"
+        className="border p-2 w-full"
+      />
+      {suggestions.length > 0 && (
+        <ul className="border p-2 w-full bg-white absolute z-10">
+          {suggestions.map((suggestion) => (
+            <li
+              key={suggestion.id}
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="cursor-pointer hover:bg-gray-200 p-2"
+            >
+              {suggestion.place_name}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 };
 
 export default AutocompleteInput;

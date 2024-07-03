@@ -1,19 +1,25 @@
 import React from "react";
 
 interface ListProps {
-  routes: google.maps.DirectionsRoute[];
-  onSelectRoute: (route: google.maps.DirectionsRoute) => void;
+  routes: any[];
+  onSelectRoute: (route: any) => void;
+  unit: string;
 }
 
-const RoutesList: React.FC<ListProps> = ({ routes, onSelectRoute }) => {
+const convertDistance = (distance: number, unit: string) => {
+  return unit === "miles" ? (distance / 1000) * 0.621371 : distance / 1000;
+};
+
+const RoutesList: React.FC<ListProps> = ({ routes, onSelectRoute, unit }) => {
   return (
     <ul className="list-disc pl-5">
       {routes.map((route, index) => (
         <li key={index} onClick={() => onSelectRoute(route)}>
-          {route.summary || `Route ${index + 1}`} -{" "}
-          {route.legs && route.legs[0] && route.legs[0].distance
-            ? route.legs[0].distance.text
-            : "Distance not available"}
+          {`Route ${index + 1}: ${
+            route.distance
+              ? convertDistance(route.distance, unit).toFixed(2)
+              : "Distance not available"
+          } ${unit} (${route.distance ? route.weight_name : "undefined"})`}
         </li>
       ))}
     </ul>

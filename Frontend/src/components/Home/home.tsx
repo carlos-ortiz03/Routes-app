@@ -9,7 +9,7 @@ const Home: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       <Header />
-      <div className="flex flex-grow">
+      <div className="flex flex-grow overflow-hidden">
         <SavedRunsSidebar savedRoutes={savedRoutes} />
         <MainContent />
       </div>

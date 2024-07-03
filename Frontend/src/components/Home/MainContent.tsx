@@ -4,21 +4,31 @@ import RoutesList from "./RoutesList";
 import MapComponent from "./Map";
 import axios from "axios";
 import { Place } from "../types";
+import { bbox } from "@turf/turf";
+import { FeatureCollection, Geometry, GeoJsonProperties } from "geojson";
 
 const MainContent: React.FC = () => {
   const [routes, setRoutes] = useState<any[]>([]);
-  const [selectedRoute, setSelectedRoute] = useState<any | null>(null);
-  const [center, setCenter] = useState<{ lat: number; lng: number }>({
-    lat: 0,
+  const [selectedRoute, setSelectedRoute] = useState<FeatureCollection<
+    Geometry,
+    GeoJsonProperties
+  > | null>(null);
+  const [viewport, setViewport] = useState({
     lng: 0,
+    lat: 0,
+    zoom: 10,
   });
-  const [unit, setUnit] = useState<string>("kilometers");
+  const [originalLocation, setOriginalLocation] = useState<{
+    lng: number;
+    lat: number;
+  }>({ lng: 0, lat: 0 });
 
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
-        setCenter({ lat: latitude, lng: longitude });
+        setViewport({ lat: latitude, lng: longitude, zoom: 10 });
+        setOriginalLocation({ lat: latitude, lng: longitude });
       });
     }
   }, []);
@@ -50,7 +60,7 @@ const MainContent: React.FC = () => {
       setRoutes(response.data.routes || []);
 
       if (response.data.routes && response.data.routes.length > 0) {
-        const geojson = {
+        const geojson: FeatureCollection<Geometry, GeoJsonProperties> = {
           type: "FeatureCollection",
           features: response.data.routes.map((route: any) => ({
             type: "Feature",
@@ -67,50 +77,67 @@ const MainContent: React.FC = () => {
   };
 
   const handleSelectPlace = (place: Place) => {
-    setCenter({
+    const newLocation = {
       lat: place.geometry.coordinates[1],
       lng: place.geometry.coordinates[0],
+    };
+    setViewport({
+      ...newLocation,
+      zoom: 14,
     });
+    setOriginalLocation(newLocation);
   };
 
   const handleSelectRoute = (route: any) => {
-    const geojson = {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: route.geometry,
-          properties: {},
-        },
-      ],
-    };
-    setSelectedRoute(geojson);
-  };
-
-  const toggleUnit = () => {
-    setUnit((prevUnit) => (prevUnit === "kilometers" ? "miles" : "kilometers"));
+    if (route && route.geometry && route.geometry.coordinates) {
+      const geojson: FeatureCollection<Geometry, GeoJsonProperties> = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: route.geometry,
+            properties: {},
+          },
+        ],
+      };
+      const [minLng, minLat, maxLng, maxLat] = bbox(geojson);
+      const lng = (minLng + maxLng) / 2;
+      const lat = (minLat + maxLat) / 2;
+      const zoom = Math.max(
+        14, // minimum zoom level
+        Math.min(
+          Math.log2(360 / (maxLng - minLng)),
+          Math.log2(180 / (maxLat - minLat))
+        )
+      );
+      setSelectedRoute(geojson);
+      setViewport({ lng, lat, zoom });
+    } else {
+      console.error("Invalid route data:", route);
+    }
   };
 
   return (
-    <div className="flex flex-col w-3/4 p-4">
+    <div className="flex flex-col w-full h-full p-4 overflow-hidden">
       <div className="mb-4">
         <Form onSearch={handleSearch} onSelectPlace={handleSelectPlace} />
       </div>
-      <div className="mb-4">
-        <button onClick={toggleUnit} className="bg-blue-500 text-white p-2">
-          Toggle to {unit === "kilometers" ? "miles" : "kilometers"}
-        </button>
-      </div>
-      <div className="mb-4 overflow-y-auto">
-        <h2 className="text-xl font-bold mb-2">Routes Generated</h2>
-        <RoutesList
-          routes={routes}
-          onSelectRoute={handleSelectRoute}
-          unit={unit}
-        />
-      </div>
-      <div className="flex-grow">
-        <MapComponent center={center} directions={selectedRoute} />
+      <div className="flex flex-grow overflow-hidden">
+        <div className="w-1/3 overflow-y-auto pr-4">
+          <h2 className="text-xl font-bold mb-2">Routes Generated</h2>
+          <RoutesList
+            routes={routes}
+            onSelectRoute={handleSelectRoute}
+            selectedRoute={selectedRoute}
+          />
+        </div>
+        <div className="w-2/3 h-full">
+          <MapComponent
+            center={viewport}
+            originalLocation={originalLocation}
+            directions={selectedRoute}
+          />
+        </div>
       </div>
     </div>
   );

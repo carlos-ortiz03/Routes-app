@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
-import MapGL, { Marker, Source, Layer, ViewState } from "react-map-gl";
+import MapGL, {
+  Marker,
+  Source,
+  Layer,
+  ViewState,
+  NavigationControl,
+} from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { FeatureCollection, Geometry, GeoJsonProperties } from "geojson";
 
 const MAPBOX_TOKEN = "put key here";
 
@@ -19,21 +26,28 @@ const initialViewState: ViewState = {
 };
 
 const MapComponent: React.FC<{
-  center: { lat: number; lng: number };
-  directions: any;
-}> = ({ center, directions }) => {
+  center: { lat: number; lng: number; zoom: number };
+  originalLocation: { lat: number; lng: number };
+  directions: FeatureCollection<Geometry, GeoJsonProperties> | null;
+}> = ({ center, originalLocation, directions }) => {
   const [viewState, setViewState] = useState<ViewState>({
     ...initialViewState,
     longitude: center.lng,
     latitude: center.lat,
+    zoom: center.zoom,
   });
 
   useEffect(() => {
-    setViewState((prevState) => ({
-      ...prevState,
-      longitude: center.lng,
-      latitude: center.lat,
-    }));
+    if (!isNaN(center.lng) && !isNaN(center.lat) && !isNaN(center.zoom)) {
+      setViewState((prevState) => ({
+        ...prevState,
+        longitude: center.lng,
+        latitude: center.lat,
+        zoom: center.zoom,
+      }));
+    } else {
+      console.error("Invalid center coordinates:", center);
+    }
   }, [center]);
 
   return (
@@ -44,7 +58,12 @@ const MapComponent: React.FC<{
       mapboxAccessToken={MAPBOX_TOKEN}
       onMove={(evt) => setViewState(evt.viewState)}
     >
-      <Marker latitude={center.lat} longitude={center.lng} />
+      {!isNaN(originalLocation.lat) && !isNaN(originalLocation.lng) && (
+        <Marker
+          latitude={originalLocation.lat}
+          longitude={originalLocation.lng}
+        />
+      )}
       {directions && (
         <Source id="route" type="geojson" data={directions}>
           <Layer
@@ -57,6 +76,7 @@ const MapComponent: React.FC<{
           />
         </Source>
       )}
+      <NavigationControl position="top-left" />
     </MapGL>
   );
 };

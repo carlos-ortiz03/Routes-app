@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import mbxDirections from "@mapbox/mapbox-sdk/services/directions";
 import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding";
+import { DirectionsWaypoint } from "@mapbox/mapbox-sdk/services/directions";
 
 const directionsClient = mbxDirections({
   accessToken: process.env.MAPBOX_API_KEY!,
@@ -49,25 +50,36 @@ export const getDirections = async (req: Request, res: Response) => {
       geocodeResponse.body.features[0].geometry.coordinates;
     const targetDistance = parseFloat(mileage as string) * 1000; // Convert km to meters
 
-    const routeRequests = [];
-
     const mapboxProfile = mapTravelMode(travelMode as string);
 
-    for (let i = 0; i < 10; i++) {
+    // Function to create a closed loop with no self-overlap
+    const createClosedLoopWaypoints = (
+      lon: number,
+      lat: number,
+      factor: number
+    ): DirectionsWaypoint[] => {
+      const offset = factor; // Smaller, controlled offsets to better match the target distance
+      return [
+        { coordinates: [lon, lat] },
+        { coordinates: [lon + offset, lat] },
+        { coordinates: [lon + offset, lat + offset] },
+        { coordinates: [lon, lat + offset] },
+        { coordinates: [lon, lat] },
+      ];
+    };
+
+    // Generate more routes
+    const routeRequests = [];
+    for (let i = 0; i < 100; i++) {
+      // Increase the number of routes generated
+      const factor = 0.0005 * (i + 1); // Smaller and more controlled offsets
+      const waypoints = createClosedLoopWaypoints(longitude, latitude, factor);
+
       routeRequests.push(
         directionsClient
           .getDirections({
             profile: mapboxProfile,
-            waypoints: [
-              { coordinates: [longitude, latitude] },
-              {
-                coordinates: [
-                  longitude + Math.random() * 0.01 - 0.005,
-                  latitude + Math.random() * 0.01 - 0.005,
-                ],
-              },
-              { coordinates: [longitude, latitude] }, // Loop back to the same point
-            ],
+            waypoints,
             steps: true,
             geometries: "geojson",
             overview: "full",
@@ -77,17 +89,10 @@ export const getDirections = async (req: Request, res: Response) => {
     }
 
     const responses = await Promise.all(routeRequests);
-    let routes = responses.map((response) => response.body.routes).flat();
-
-    // Sort routes by the closest distance to the targetDistance
-    routes.sort((a, b) => {
-      const diffA = Math.abs(a.distance - targetDistance);
-      const diffB = Math.abs(b.distance - targetDistance);
-      return diffA - diffB;
-    });
+    const routes = responses.map((response) => response.body.routes[0]);
 
     // Add distance property if it's missing
-    routes = routes.map((route) => {
+    const enrichedRoutes = routes.map((route) => {
       if (!route.distance) {
         route.distance = route.legs.reduce(
           (acc: number, leg: any) => acc + leg.distance,
@@ -97,9 +102,19 @@ export const getDirections = async (req: Request, res: Response) => {
       return route;
     });
 
-    res.json({ routes });
+    // Sort routes by absolute proximity to the target distance
+    enrichedRoutes.sort((a, b) => {
+      const diffA = Math.abs(a.distance - targetDistance);
+      const diffB = Math.abs(b.distance - targetDistance);
+      return diffA - diffB;
+    });
+
+    // Select the top 10 routes closest to the desired distance
+    const bestRoutes = enrichedRoutes.slice(0, 10);
+
+    res.json({ routes: bestRoutes });
   } catch (error) {
     console.error("Error fetching directions:", error);
-    res.status(500).json({ error: "Failed to fetch directions" });
+    res.status(500).json({ error: "Failed to fetch directions", routes: [] });
   }
 };

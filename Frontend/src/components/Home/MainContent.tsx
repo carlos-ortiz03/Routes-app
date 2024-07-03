@@ -47,9 +47,9 @@ const MainContent: React.FC = () => {
 
       console.log("Received response from backend:", response.data);
 
-      setRoutes(response.data.routes);
+      setRoutes(response.data.routes || []);
 
-      if (response.data.routes.length > 0) {
+      if (response.data.routes && response.data.routes.length > 0) {
         const geojson = {
           type: "FeatureCollection",
           features: response.data.routes.map((route: any) => ({
@@ -62,6 +62,7 @@ const MainContent: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching routes:", error);
+      setRoutes([]);
     }
   };
 

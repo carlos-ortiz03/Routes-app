@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MapGL, { Marker, Source, Layer, ViewState } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-const MAPBOX_TOKEN = "key here";
+const MAPBOX_TOKEN = "put key here";
 
 const containerStyle = {
   width: "100%",

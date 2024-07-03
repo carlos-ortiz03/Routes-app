@@ -11,6 +11,10 @@ const convertDistance = (distance: number, unit: string) => {
 };
 
 const RoutesList: React.FC<ListProps> = ({ routes, onSelectRoute, unit }) => {
+  if (!routes || routes.length === 0) {
+    return <div>No routes available</div>;
+  }
+
   return (
     <ul className="list-disc pl-5">
       {routes.map((route, index) => (

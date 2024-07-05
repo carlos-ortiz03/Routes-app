@@ -57,15 +57,22 @@ const MainContent: React.FC = () => {
 
       console.log("Received response from backend:", response.data);
 
-      setRoutes(response.data.routes || []);
+      const fetchedRoutes = response.data.routes || [];
+      // Ensure travelMode is set for each route
+      const routesWithTravelMode = fetchedRoutes.map((route: any) => ({
+        ...route,
+        travelMode: travelMode, // Directly use the provided travelMode
+      }));
 
-      if (response.data.routes && response.data.routes.length > 0) {
+      setRoutes(routesWithTravelMode);
+
+      if (routesWithTravelMode.length > 0) {
         const geojson: FeatureCollection<Geometry, GeoJsonProperties> = {
           type: "FeatureCollection",
-          features: response.data.routes.map((route: any) => ({
+          features: routesWithTravelMode.map((route: any) => ({
             type: "Feature",
             geometry: route.geometry,
-            properties: {},
+            properties: { travelMode: travelMode, name: route.name },
           })),
         };
         setSelectedRoute(geojson);
@@ -96,7 +103,7 @@ const MainContent: React.FC = () => {
           {
             type: "Feature",
             geometry: route.geometry,
-            properties: {},
+            properties: { travelMode: route.travelMode, name: route.name },
           },
         ],
       };
@@ -118,20 +125,22 @@ const MainContent: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col w-full h-full p-4 overflow-hidden">
+    <div className="flex flex-col w-full h-full overflow-hidden text-white rounded-lg space-y-4">
       <div className="mb-4">
         <Form onSearch={handleSearch} onSelectPlace={handleSelectPlace} />
       </div>
-      <div className="flex flex-grow overflow-hidden">
-        <div className="w-1/3 overflow-y-auto pr-4">
-          <h2 className="text-xl font-bold mb-2">Routes Generated</h2>
-          <RoutesList
-            routes={routes}
-            onSelectRoute={handleSelectRoute}
-            selectedRoute={selectedRoute}
-          />
+      <div className="flex flex-grow overflow-hidden space-x-4">
+        <div className="w-1/3 flex flex-col overflow-hidden pr-4">
+          <div className="bg-[#2B2929] p-4 rounded-lg flex-grow h-full">
+            <h2 className="text-xl font-bold mb-2">Routes Generated</h2>
+            <RoutesList
+              routes={routes}
+              onSelectRoute={handleSelectRoute}
+              selectedRoute={selectedRoute}
+            />
+          </div>
         </div>
-        <div className="w-2/3 h-full">
+        <div className="w-2/3 h-full rounded-lg overflow-hidden">
           <MapComponent
             center={viewport}
             originalLocation={originalLocation}

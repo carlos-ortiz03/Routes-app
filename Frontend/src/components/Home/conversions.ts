@@ -1,5 +1,3 @@
-// src/utils/conversions.ts
-
 export const kilometersToMiles = (kilometers: number): number => {
   return kilometers * 0.621371;
 };

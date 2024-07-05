@@ -6,11 +6,14 @@ interface SavedRunsSidebarProps {
 
 const SavedRunsSidebar: React.FC<SavedRunsSidebarProps> = ({ savedRoutes }) => {
   return (
-    <aside className="w-1/4 bg-gray-200 p-4 shadow-lg">
+    <aside className="w-1/4 bg-[#2B2929] p-4 rounded-lg shadow-lg space-y-4">
       <h2 className="text-xl font-bold mb-4">Saved Routes</h2>
       <ul>
         {savedRoutes.map((route, index) => (
-          <li key={index} className="mb-4 p-4 bg-white rounded-lg shadow-md">
+          <li
+            key={index}
+            className="mb-4 p-4 bg-[#525252] rounded-lg shadow-md"
+          >
             <div className="font-bold">{route.name}</div>
             <div>{route.distance} mi</div>
             <div>{route.elevation} ft</div>

@@ -70,7 +70,7 @@ const MapComponent: React.FC<{
             id="route"
             type="line"
             paint={{
-              "line-color": "#888",
+              "line-color": "#298b45", // Set line color to #298b45
               "line-width": 8,
             }}
           />

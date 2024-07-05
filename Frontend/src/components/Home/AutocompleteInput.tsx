@@ -50,15 +50,15 @@ const AutocompleteInput: React.FC<{ onSelect: (place: Place) => void }> = ({
         value={query}
         onChange={handleInputChange}
         placeholder="Enter an address"
-        className="border p-2 w-full"
+        className="border p-2 w-full bg-[#6b7280] text-gray-200 placeholder-gray-200"
       />
       {suggestions.length > 0 && (
-        <ul className="border p-2 w-full bg-white absolute z-10">
+        <ul className="border p-2 w-full bg-[#2b2929] absolute z-10">
           {suggestions.map((suggestion) => (
             <li
               key={suggestion.id}
               onClick={() => handleSuggestionClick(suggestion)}
-              className="cursor-pointer hover:bg-gray-200 p-2"
+              className="cursor-pointer hover:bg-[#525252] p-2 text-gray-200"
             >
               {suggestion.place_name}
             </li>

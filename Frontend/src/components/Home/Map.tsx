@@ -8,6 +8,8 @@ import MapGL, {
 } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { FeatureCollection, Geometry, GeoJsonProperties } from "geojson";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 const MAPBOX_TOKEN = "put key here";
 

@@ -1,4 +1,34 @@
-// src/types.ts or src/mapboxTypes.ts
+import { FeatureCollection, LineString, GeoJsonProperties } from "geojson";
+
+export interface GeoJsonRoute
+  extends FeatureCollection<LineString, GeoJsonProperties> {
+  features: Array<{
+    type: "Feature";
+    geometry: LineString;
+    properties: {
+      travelMode: string;
+      name: string;
+    };
+  }>;
+}
+
+export interface Route {
+  _id: string;
+  name: string;
+  distance: number;
+  geometry: LineString;
+  travelMode: string;
+  userId?: string;
+}
+
+export interface Place {
+  id: string;
+  place_name: string;
+  geometry: {
+    type: string;
+    coordinates: number[];
+  };
+}
 
 export interface MapboxRoute {
   legs: Array<{
@@ -12,13 +42,4 @@ export interface MapboxRoute {
     coordinates: [number, number][];
   };
   summary: string;
-}
-
-export interface Place {
-  id: string;
-  place_name: string;
-  geometry: {
-    type: string;
-    coordinates: [number, number];
-  };
 }

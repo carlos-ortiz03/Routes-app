@@ -2,17 +2,16 @@ import React, { useState, useEffect } from "react";
 import Form from "./MileageForm";
 import RoutesList from "./RoutesList";
 import MapComponent from "./Map";
-import axios from "axios";
-import { Place } from "../types";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import axios from "axios"; // Add this line to import axios
 import { bbox } from "@turf/turf";
-import { FeatureCollection, Geometry, GeoJsonProperties } from "geojson";
+import { FeatureCollection, LineString, GeoJsonProperties } from "geojson";
+import { Place, GeoJsonRoute } from "../types"; // Add this line to import Place and GeoJsonRoute
 
 const MainContent: React.FC = () => {
   const [routes, setRoutes] = useState<any[]>([]);
-  const [selectedRoute, setSelectedRoute] = useState<FeatureCollection<
-    Geometry,
-    GeoJsonProperties
-  > | null>(null);
+  const [selectedRoute, setSelectedRoute] = useState<GeoJsonRoute | null>(null);
   const [viewport, setViewport] = useState({
     lng: 0,
     lat: 0,
@@ -23,6 +22,10 @@ const MainContent: React.FC = () => {
     lat: number;
   }>({ lng: 0, lat: 0 });
 
+  const currentRoute = useSelector(
+    (state: RootState) => state.routes.currentRoute
+  );
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -32,6 +35,27 @@ const MainContent: React.FC = () => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (
+      currentRoute &&
+      currentRoute.features &&
+      currentRoute.features[0].geometry
+    ) {
+      const [minLng, minLat, maxLng, maxLat] = bbox(currentRoute);
+      const lng = (minLng + maxLng) / 2;
+      const lat = (minLat + maxLat) / 2;
+      const zoom = Math.max(
+        14, // minimum zoom level
+        Math.min(
+          Math.log2(360 / (maxLng - minLng)),
+          Math.log2(180 / (maxLat - minLat))
+        )
+      );
+      setSelectedRoute(currentRoute);
+      setViewport({ lng, lat, zoom });
+    }
+  }, [currentRoute]);
 
   const handleSearch = async (
     location: string,
@@ -67,11 +91,11 @@ const MainContent: React.FC = () => {
       setRoutes(routesWithTravelMode);
 
       if (routesWithTravelMode.length > 0) {
-        const geojson: FeatureCollection<Geometry, GeoJsonProperties> = {
+        const geojson: GeoJsonRoute = {
           type: "FeatureCollection",
           features: routesWithTravelMode.map((route: any) => ({
             type: "Feature",
-            geometry: route.geometry,
+            geometry: route.geometry as LineString, // Explicitly type the geometry
             properties: { travelMode: travelMode, name: route.name },
           })),
         };
@@ -97,12 +121,12 @@ const MainContent: React.FC = () => {
 
   const handleSelectRoute = (route: any) => {
     if (route && route.geometry && route.geometry.coordinates) {
-      const geojson: FeatureCollection<Geometry, GeoJsonProperties> = {
+      const geojson: GeoJsonRoute = {
         type: "FeatureCollection",
         features: [
           {
             type: "Feature",
-            geometry: route.geometry,
+            geometry: route.geometry as LineString, // Explicitly type the geometry
             properties: { travelMode: route.travelMode, name: route.name },
           },
         ],

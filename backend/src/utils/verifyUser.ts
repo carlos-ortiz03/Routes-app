@@ -1,3 +1,4 @@
+// utils/verifyUser.ts
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload, VerifyErrors } from "jsonwebtoken";
 import { errorHandler } from "./error";

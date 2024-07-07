@@ -19,7 +19,7 @@ const AutocompleteInput: React.FC<{ onSelect: (place: Place) => void }> = ({
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${value}.json`,
         {
           params: {
-            access_token: "put key here",
+            access_token: import.meta.env.VITE_MAPBOX_API_KEY as string,
             autocomplete: true,
           },
         }

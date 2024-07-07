@@ -9,14 +9,6 @@ export const saveRoute = async (req: CustomRequest, res: Response) => {
     const { name, distance, geometry, travelMode } = req.body;
     const userId = req.user!.id; // User ID is extracted from the token
 
-    console.log("Saving route with data:", {
-      name,
-      distance,
-      geometry,
-      travelMode,
-      userId,
-    });
-
     // Ensure geometry.coordinates is an array of arrays of numbers
     if (
       !Array.isArray(geometry.coordinates) ||
@@ -34,7 +26,6 @@ export const saveRoute = async (req: CustomRequest, res: Response) => {
     });
 
     await newRoute.save();
-    console.log("hi");
     res.status(201).json({ message: "Route saved successfully!" });
   } catch (error) {
     console.error("Error saving route:", error); // Log the error to the server console

@@ -4,6 +4,7 @@
 
 # Environment variables
 /backend/.env
+/frontend/.env
 
 # Logs
 logs

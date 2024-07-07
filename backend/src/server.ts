@@ -11,7 +11,6 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { errorHandlingMiddleware, CustomError } from "./utils/error";
 
-console.log("MONGO_URI:", process.env.MONGO_URI);
 mongoose
   .connect(process.env.MONGO_URI as string)
   .then(() => {

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "ts-node src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -36,9 +37,9 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/mapbox__mapbox-sdk": "^0.14.0",
     "@types/mongoose": "^5.11.97",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.14.10",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.5.3"
   }
 }

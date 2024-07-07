@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import axios from "axios"; // Add this line to import axios
 import { bbox } from "@turf/turf";
-import { FeatureCollection, LineString, GeoJsonProperties } from "geojson";
+import { LineString } from "geojson";
 import { Place, GeoJsonRoute } from "../types"; // Add this line to import Place and GeoJsonRoute
 
 const MainContent: React.FC = () => {

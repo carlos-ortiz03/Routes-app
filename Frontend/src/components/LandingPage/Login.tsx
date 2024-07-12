@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../slices/authSlice";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 interface LoginProps {
   setShowForm: React.Dispatch<React.SetStateAction<"login" | "signup" | null>>;
 }
@@ -19,7 +21,7 @@ const Login: React.FC<LoginProps> = ({ setShowForm }) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5001/api/auth/login",
+        `${backendUrl}/api/auth/login`,
         { email, password },
         { withCredentials: true }
       );

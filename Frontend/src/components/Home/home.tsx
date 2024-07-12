@@ -6,6 +6,8 @@ import DisclaimerModal from "./DisclaimerModal";
 import axios from "axios";
 import { Route } from "../types"; // Adjust the import path according to your project structure
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const Home: React.FC = () => {
   const [savedRoutes, setSavedRoutes] = useState<Route[]>([]); // Use Route[] type
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(true);
@@ -13,7 +15,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchSavedRoutes = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/api/routes", {
+        const response = await axios.get(`${backendUrl}/api/routes`, {
           withCredentials: true,
         });
         setSavedRoutes(response.data);

@@ -5,6 +5,8 @@ interface SignUpProps {
   setShowForm: React.Dispatch<React.SetStateAction<"login" | "signup" | null>>;
 }
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -16,7 +18,7 @@ const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
     try {
       console.log("h");
       const response = await axios.post(
-        "http://localhost:5001/api/auth/signup",
+        `${backendUrl}/api/auth/signup`,
         { username, email, password },
         { withCredentials: true }
       );

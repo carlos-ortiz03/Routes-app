@@ -25,7 +25,7 @@ const app = express();
 // Set up CORS
 app.use(
   cors({
-    origin: "http://localhost:5173", // Frontend URL
+    origin: process.env.FRONTEND_URL, // Use environment variable for Frontend URL
     credentials: true,
   })
 );
@@ -47,6 +47,11 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-app.listen(5001, () => {
-  console.log("Server is running on http://localhost:5001");
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+  if (process.env.NODE_ENV === "production") {
+    console.log(`Server is running in production on port ${PORT}`);
+  } else {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  }
 });

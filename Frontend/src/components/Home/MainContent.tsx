@@ -9,6 +9,8 @@ import { bbox } from "@turf/turf";
 import { LineString } from "geojson";
 import { Place, GeoJsonRoute } from "../types"; // Add this line to import Place and GeoJsonRoute
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const MainContent: React.FC = () => {
   const [routes, setRoutes] = useState<any[]>([]);
   const [selectedRoute, setSelectedRoute] = useState<GeoJsonRoute | null>(null);
@@ -68,16 +70,13 @@ const MainContent: React.FC = () => {
     console.log("Travel Mode:", travelMode);
 
     try {
-      const response = await axios.get(
-        "http://localhost:5001/api/maps/directions",
-        {
-          params: {
-            origin: location,
-            mileage: mileage,
-            travelMode: travelMode,
-          },
-        }
-      );
+      const response = await axios.get(`${backendUrl}/api/maps/directions`, {
+        params: {
+          origin: location,
+          mileage: mileage,
+          travelMode: travelMode,
+        },
+      });
 
       console.log("Received response from backend:", response.data);
 

@@ -6,6 +6,8 @@ import { Route, GeoJsonRoute } from "../types";
 import axios from "axios";
 import { RootState } from "../../store";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 interface ListProps {
   routes: Route[];
   onSelectRoute: (route: Route) => void;
@@ -48,7 +50,7 @@ const RoutesList: React.FC<ListProps> = ({
 
     try {
       const response = await axios.post(
-        "http://localhost:5001/api/routes/save",
+        `${backendUrl}/api/routes/save`,
         {
           name: namePrompt,
           distance: currentRoute.distance,

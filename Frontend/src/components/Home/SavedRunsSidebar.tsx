@@ -5,6 +5,8 @@ import { setCurrentRoute } from "../../slices/routesSlice";
 import { Route, GeoJsonRoute } from "../types";
 import { RootState } from "../../store";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 interface SavedRunsSidebarProps {
   savedRoutes: Route[];
   onDeleteRoute: (routeId: string) => void;
@@ -29,7 +31,7 @@ const SavedRunsSidebar: React.FC<SavedRunsSidebarProps> = ({
 
   const deleteRoute = async (routeId: string) => {
     try {
-      await axios.delete(`http://localhost:5001/api/routes/${routeId}`, {
+      await axios.delete(`${backendUrl}/api/routes/${routeId}`, {
         withCredentials: true,
       });
       onDeleteRoute(routeId);
@@ -46,7 +48,7 @@ const SavedRunsSidebar: React.FC<SavedRunsSidebarProps> = ({
   const saveEdit = async (routeId: string) => {
     try {
       await axios.put(
-        `http://localhost:5001/api/routes/${routeId}`,
+        `${backendUrl}/api/routes/${routeId}`,
         { name: newName },
         { withCredentials: true }
       );

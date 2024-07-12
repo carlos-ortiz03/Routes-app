@@ -8,6 +8,8 @@ import SignUp from "./SignUp";
 import axios from "axios";
 import { login } from "../../slices/authSlice";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const LandingPage: React.FC = () => {
   const [showForm, setShowForm] = useState<"login" | "signup" | null>(null);
   const navigate = useNavigate();
@@ -16,10 +18,9 @@ const LandingPage: React.FC = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5001/api/auth/checkAuth",
-          { withCredentials: true }
-        );
+        const response = await axios.get(`${backendUrl}/api/auth/checkAuth`, {
+          withCredentials: true,
+        });
         dispatch(
           login({
             username: response.data.username,

@@ -2,5 +2,5 @@ services:
   - type: web
     name: backend
     env: node
-    buildCommand: npm install --only=dev && npm install && npm run build
+    buildCommand: npm install && npm run build
     startCommand: npm start

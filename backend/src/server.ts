@@ -1,4 +1,3 @@
-// server.ts
 import dotenv from "dotenv";
 dotenv.config(); // Ensure this is at the very top
 
@@ -6,7 +5,7 @@ import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import authRouter from "./routes/auth.route";
 import mapsRouter from "./routes/maps.route";
-import routesRouter from "./routes/routes.route"; // Add this import
+import routesRouter from "./routes/routes.route";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { errorHandlingMiddleware, CustomError } from "./utils/error";
@@ -35,7 +34,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
 app.use("/api/maps", mapsRouter);
-app.use("/api/routes", routesRouter); // Add this line
+app.use("/api/routes", routesRouter);
 
 app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
   const statusCode = err.statusCode || 500;

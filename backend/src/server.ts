@@ -46,8 +46,8 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
+const PORT = parseInt(process.env.PORT as string, 10) || 5001;
+app.listen(PORT, "0.0.0.0", () => {
   if (process.env.NODE_ENV === "production") {
     console.log(`Server is running in production on port ${PORT}`);
   } else {

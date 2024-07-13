@@ -46,11 +46,11 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-const PORT = parseInt(process.env.PORT as string, 10) || 5001;
-app.listen(PORT, "0.0.0.0", () => {
+const port = parseInt(process.env.PORT as string, 10) || 5001;
+app.listen(port, "0.0.0.0", () => {
   if (process.env.NODE_ENV === "production") {
-    console.log(`Server is running in production on port ${PORT}`);
+    console.log(`Server is running in production on port ${port}`);
   } else {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${port}`);
   }
 });

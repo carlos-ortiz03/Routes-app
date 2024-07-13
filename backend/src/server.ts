@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config(); // Ensure this is at the very top
+console.log();
 
 import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";

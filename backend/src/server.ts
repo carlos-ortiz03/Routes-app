@@ -20,7 +20,7 @@ mongoose
   });
 
 const app = express();
-const port = process.env.PORT || 5001;
+const port = parseInt(process.env.PORT as string, 10) || 5001;
 
 // Set up CORS
 app.use(
@@ -47,7 +47,7 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   if (process.env.NODE_ENV === "production") {
     console.log(`Server is running in production on port ${port}`);
   } else {

@@ -1,1 +1,0 @@
-web: npm run check-dir && npm start

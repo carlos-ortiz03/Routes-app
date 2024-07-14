@@ -20,6 +20,8 @@ const Login: React.FC<LoginProps> = ({ setShowForm }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log("Logging in...");
+      console.log("Backend URL:", backendUrl);
       const response = await axios.post(
         `${backendUrl}/api/auth/login`,
         { email, password },

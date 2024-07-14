@@ -16,7 +16,8 @@ const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      console.log("h");
+      console.log("Signing up...");
+      console.log("Backend URL:", backendUrl);
       const response = await axios.post(
         `${backendUrl}/api/auth/signup`,
         { username, email, password },

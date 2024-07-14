@@ -18,6 +18,8 @@ const LandingPage: React.FC = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log("Checking if user is authenticated...");
+        console.log("Backend URL:", backendUrl);
         const response = await axios.get(`${backendUrl}/api/auth/checkAuth`, {
           withCredentials: true,
         });

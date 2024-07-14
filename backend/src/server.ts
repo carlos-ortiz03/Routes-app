@@ -1,13 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config(); // Ensure this is at the very top
 
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import cors from "cors"; // Add this import
+import cors, { CorsOptions } from "cors";
+import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.route";
 import mapsRouter from "./routes/maps.route";
 import routesRouter from "./routes/routes.route";
-import cookieParser from "cookie-parser";
 import { errorHandlingMiddleware, CustomError } from "./utils/error";
 
 // Connect to MongoDB
@@ -29,14 +29,28 @@ mongoose
 const app = express();
 const port = process.env.PORT || 5001;
 
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Ensure this matches your frontend origin
-    credentials: true,
-  })
-); // Add this line to enable CORS with credentials
-app.use(express.json());
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? ["https://routecrafter-ndzysnsdr-carlos-projects-ca3731b5.vercel.app"]
+    : ["http://localhost:5173"];
+
+const corsOptions: CorsOptions = {
+  origin: function (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
+app.use(express.json());
 
 // API Routes
 app.use("/api/auth", authRouter);

@@ -29,20 +29,14 @@ mongoose
 const app = express();
 const port = parseInt(process.env.PORT as string, 10) || 5001;
 
-// Set up CORS
-const allowedOrigins = [process.env.FRONTEND_URL, "http://localhost:5173"];
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+// Set up CORS with options
+const corsOptions = {
+  origin: process.env.FRONTEND_URL, // Use the FRONTEND_URL from environment variables
+  credentials: true, // Allow credentials
+  optionSuccessStatus: 200, // Some legacy browsers choke on a status 204
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());

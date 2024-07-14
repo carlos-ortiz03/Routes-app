@@ -7,7 +7,6 @@ import authRouter from "./routes/auth.route";
 import mapsRouter from "./routes/maps.route";
 import routesRouter from "./routes/routes.route";
 import cookieParser from "cookie-parser";
-import cors from "cors";
 import { errorHandlingMiddleware, CustomError } from "./utils/error";
 
 // Connect to MongoDB
@@ -27,16 +26,7 @@ mongoose
   });
 
 const app = express();
-const port = parseInt(process.env.PORT as string, 10) || 5001;
-
-// Set up CORS with options
-const corsOptions = {
-  origin: process.env.FRONTEND_URL, // Use the FRONTEND_URL from environment variables
-  credentials: true, // Allow credentials
-  optionSuccessStatus: 200, // Some legacy browsers choke on a status 204
-};
-
-app.use(cors(corsOptions));
+const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -50,7 +40,7 @@ app.use("/api/routes", routesRouter);
 app.use(errorHandlingMiddleware);
 
 // Start the server
-app.listen(port, "0.0.0.0", () => {
+app.listen(port, () => {
   if (process.env.NODE_ENV === "production") {
     console.log(`Server is running in production on port ${port}`);
   } else {

@@ -1,3 +1,4 @@
+// controllers/auth.controller.ts
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -48,7 +49,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       sameSite: "strict",
     });
 
-    res.status(200).json({ user, message: "Logged in successfully" });
+    res
+      .status(200)
+      .json({
+        user: { username: user.username, email: user.email },
+        message: "Logged in successfully",
+      });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }

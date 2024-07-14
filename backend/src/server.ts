@@ -32,9 +32,8 @@ const port = process.env.PORT || 5001;
 const allowedOrigins =
   process.env.NODE_ENV === "production"
     ? [
-        new RegExp(
-          `^https://routecrafter-[a-z0-9]+-carlos-projects-ca3731b5.vercel.app$`
-        ),
+        process.env.VERCEL_URL ||
+          "https://routecrafter-ndzysnsdr-carlos-projects-ca3731b5.vercel.app",
       ]
     : ["http://localhost:5173"];
 
@@ -44,12 +43,7 @@ const corsOptions: CorsOptions = {
     callback: (err: Error | null, allow?: boolean) => void
   ) {
     console.log(`Incoming origin: ${origin}`); // Log the incoming origin for debugging
-    if (
-      !origin ||
-      allowedOrigins.some((o) =>
-        typeof o === "string" ? o === origin : o.test(origin)
-      )
-    ) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));

@@ -9,9 +9,9 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:5000", // Your backend server address during development
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""), // If your backend routes are not prefixed with /api
+        target: "http://localhost:5001", // Your backend server address during development
+        changeOrigin: true, // Needed for virtual hosted sites
+        rewrite: (path) => path.replace(/^\/api/, "/api"), // Preserve the /api prefix
       },
     },
   },

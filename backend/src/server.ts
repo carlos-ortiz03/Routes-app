@@ -1,8 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config(); // Ensure this is at the very top
 
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import mongoose from "mongoose";
+import cors from "cors"; // Add this import
 import authRouter from "./routes/auth.route";
 import mapsRouter from "./routes/maps.route";
 import routesRouter from "./routes/routes.route";
@@ -26,8 +27,14 @@ mongoose
   });
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5001;
 
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Ensure this matches your frontend origin
+    credentials: true,
+  })
+); // Add this line to enable CORS with credentials
 app.use(express.json());
 app.use(cookieParser());
 

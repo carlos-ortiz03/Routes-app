@@ -5,46 +5,33 @@ interface SignUpProps {
   setShowForm: React.Dispatch<React.SetStateAction<"login" | "signup" | null>>;
 }
 
-const backendUrl =
-  process.env.NODE_ENV === "production"
-    ? import.meta.env.VITE_BACKEND_URL // Ensure this is set correctly for production, including /api if needed
-    : "/api"; // Proxy will handle this in development
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !email || !password) {
-      setError("All fields are required");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
     try {
       console.log("Signing up...");
       console.log("Backend URL:", backendUrl);
       const response = await axios.post(
-        `${backendUrl}/auth/signup`,
+        `${backendUrl}/api/auth/signup`,
         { username, email, password },
         { withCredentials: true }
       );
+      console.log("i");
       console.log("User signed up:", response.data);
-      setShowForm("login"); // Redirect to login form or handle accordingly
+      // Handle successful signup (e.g., redirect to login, show success message)
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
-        setError(error.response.data.error || "Signup failed");
+        setError(error.response.data.error);
       } else {
         setError("An unknown error occurred");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -58,7 +45,6 @@ const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="w-full p-2 mb-4 rounded border border-amber-700"
-          required
         />
         <input
           type="email"
@@ -66,7 +52,6 @@ const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full p-2 mb-4 rounded border border-amber-700"
-          required
         />
         <input
           type="password"
@@ -74,14 +59,12 @@ const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full p-2 mb-4 rounded border border-amber-700"
-          required
         />
         <button
           type="submit"
           className="bg-amber-700 hover:bg-amber-900 text-white py-2 px-4 rounded-full w-full"
-          disabled={loading}
         >
-          {loading ? "Signing Up..." : "Sign Up"}
+          Sign Up
         </button>
       </form>
       {error && <div className="mt-4 text-red-700">{error}</div>}

@@ -39,7 +39,7 @@ export const verifyUser = (
           req.user = {
             id: decoded.id as string,
             email: decoded.email as string,
-            username: decoded.username as string, // assuming you have this in the JWT payload
+            username: decoded.username as string,
           };
           next();
         } else {

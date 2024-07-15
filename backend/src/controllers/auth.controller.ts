@@ -1,4 +1,3 @@
-// controllers/auth.controller.ts
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -38,7 +37,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email },
+      { id: user._id, email: user.email, username: user.username }, // include username in JWT payload
       process.env.JWT_SECRET as string,
       { expiresIn: "1h" }
     );

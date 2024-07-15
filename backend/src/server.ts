@@ -32,7 +32,7 @@ const port = process.env.PORT || 5001;
 const allowedOrigins =
   process.env.NODE_ENV === "production"
     ? [
-        process.env.VERCEL_URL ||
+        process.env.FRONTEND_URL ||
           "https://routecrafter-ndzysnsdr-carlos-projects-ca3731b5.vercel.app",
       ]
     : ["http://localhost:5173"];

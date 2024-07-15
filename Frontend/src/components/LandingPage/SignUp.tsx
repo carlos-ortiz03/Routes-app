@@ -29,14 +29,12 @@ const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
         { withCredentials: true }
       );
       console.log("User signed up:", response.data);
-      // Dispatch login action to update the Redux store
       dispatch(
         login({
           username: response.data.user.username,
           email: response.data.user.email,
         })
       );
-      // Redirect to home page
       navigate("/home");
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {

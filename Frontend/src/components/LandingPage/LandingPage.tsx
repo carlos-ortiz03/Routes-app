@@ -6,7 +6,7 @@ import VideoBackground from "./VideoBackground";
 import Login from "./Login";
 import SignUp from "./SignUp";
 import axios from "axios";
-import { login } from "../../slices/authSlice";
+import { login, logout } from "../../slices/authSlice";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -32,6 +32,7 @@ const LandingPage: React.FC = () => {
         navigate("/home");
       } catch (error) {
         console.log("User is not authenticated");
+        dispatch(logout());
       }
     };
     checkAuth();

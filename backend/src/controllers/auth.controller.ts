@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model";
 
+const TOKEN_EXPIRATION_TIME = "6h"; // Set to 6 hours
+
 export const signup = async (req: Request, res: Response): Promise<void> => {
   const { username, email, password } = req.body;
 
@@ -14,7 +16,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign(
       { id: newUser._id, email: newUser.email, username: newUser.username },
       process.env.JWT_SECRET as string,
-      { expiresIn: "1h" }
+      { expiresIn: TOKEN_EXPIRATION_TIME }
     );
 
     res.cookie("access_token", token, {
@@ -23,12 +25,10 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       sameSite: "strict",
     });
 
-    res
-      .status(201)
-      .json({
-        user: newUser,
-        message: "Account created successfully, redirecting to home page",
-      });
+    res.status(201).json({
+      user: newUser,
+      message: "Account created successfully, redirecting to home page",
+    });
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(400).json({ error: error.message });
@@ -57,7 +57,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign(
       { id: user._id, email: user.email, username: user.username },
       process.env.JWT_SECRET as string,
-      { expiresIn: "1h" }
+      { expiresIn: TOKEN_EXPIRATION_TIME }
     );
 
     res.cookie("access_token", token, {

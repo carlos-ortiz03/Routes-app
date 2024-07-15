@@ -29,13 +29,18 @@ mongoose
 const app = express();
 const port = process.env.PORT || 5001;
 
-const allowedOrigins =
+const allowedOrigin =
   process.env.NODE_ENV === "production"
-    ? [
-        process.env.FRONTEND_URL ||
-          "https://routecrafter-ndzysnsdr-carlos-projects-ca3731b5.vercel.app",
-      ]
-    : ["http://localhost:5173"];
+    ? process.env.FRONTEND_URL ||
+      "https://routecrafter-h4k7t0l83-carlos-projects-ca3731b5.vercel.app"
+    : "http://localhost:5173";
+
+// Convert the allowed origin into a regex if it's in production
+const allowedOriginRegex = new RegExp(
+  `^https?://${allowedOrigin
+    .replace(/https?:\/\//, "")
+    .replace(/\./g, "\\.")}(:\\d+)?$`
+);
 
 const corsOptions: CorsOptions = {
   origin: function (
@@ -43,7 +48,7 @@ const corsOptions: CorsOptions = {
     callback: (err: Error | null, allow?: boolean) => void
   ) {
     console.log(`Incoming origin: ${origin}`); // Log the incoming origin for debugging
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin || allowedOriginRegex.test(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));

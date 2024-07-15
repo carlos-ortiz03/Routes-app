@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { login } from "../../slices/authSlice";
 
 interface SignUpProps {
   setShowForm: React.Dispatch<React.SetStateAction<"login" | "signup" | null>>;
@@ -16,7 +14,6 @@ const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,12 +26,7 @@ const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
         { withCredentials: true }
       );
       console.log("User signed up:", response.data);
-      dispatch(
-        login({
-          username: response.data.user.username,
-          email: response.data.user.email,
-        })
-      );
+      // Redirect to home page after successful signup
       navigate("/home");
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {

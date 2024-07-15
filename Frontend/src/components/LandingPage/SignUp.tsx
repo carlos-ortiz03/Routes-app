@@ -23,7 +23,6 @@ const SignUp: React.FC<SignUpProps> = ({ setShowForm }) => {
         { username, email, password },
         { withCredentials: true }
       );
-      console.log("i");
       console.log("User signed up:", response.data);
       // Handle successful signup (e.g., redirect to login, show success message)
     } catch (error: unknown) {

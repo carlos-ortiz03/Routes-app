@@ -10,7 +10,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { FeatureCollection, Geometry, GeoJsonProperties } from "geojson";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_API_KEY as string;
-console.log("Mapbox Token:", MAPBOX_TOKEN); // Debugging line
 
 const containerStyle = {
   width: "100%",

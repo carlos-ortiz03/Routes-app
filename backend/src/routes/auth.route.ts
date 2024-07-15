@@ -1,6 +1,7 @@
+// routes/auth.route.ts
 import express, { Request, Response } from "express";
 import { signup, login, logout } from "../controllers/auth.controller";
-import { verifyUser, CustomRequest } from "../utils/verifyUser"; // Ensure the path is correct
+import { verifyUser, CustomRequest } from "../utils/verifyUser";
 
 const router = express.Router();
 

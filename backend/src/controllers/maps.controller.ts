@@ -31,10 +31,16 @@ export const getDirections = async (req: Request, res: Response) => {
   const { origin, mileage, travelMode } = req.query;
 
   if (!origin || !mileage || !travelMode) {
+    console.error("Missing required parameters:", {
+      origin,
+      mileage,
+      travelMode,
+    });
     return res.status(400).json({ error: "Missing required parameters" });
   }
 
   try {
+    console.log("Geocoding origin:", origin);
     const geocodeResponse = await geocodingClient
       .forwardGeocode({
         query: origin as string,
@@ -43,14 +49,23 @@ export const getDirections = async (req: Request, res: Response) => {
       .send();
 
     if (!geocodeResponse.body.features.length) {
+      console.error("Invalid origin address:", origin);
       return res.status(400).json({ error: "Invalid origin address" });
     }
 
     const [longitude, latitude] =
       geocodeResponse.body.features[0].geometry.coordinates;
-    const targetDistance = parseFloat(mileage as string) * 1000; // Convert km to meters
+    console.log("Geocoded coordinates:", { longitude, latitude });
 
+    const targetDistance = parseFloat(mileage as string) * 1000; // Convert km to meters
     const mapboxProfile = mapTravelMode(travelMode as string);
+
+    console.log("Generating routes with parameters:", {
+      longitude,
+      latitude,
+      targetDistance,
+      mapboxProfile,
+    });
 
     // Function to create a closed loop with no self-overlap
     const createClosedLoopWaypoints = (
@@ -75,6 +90,7 @@ export const getDirections = async (req: Request, res: Response) => {
       const factor = 0.0005 * (i + 1); // Smaller and more controlled offsets
       const waypoints = createClosedLoopWaypoints(longitude, latitude, factor);
 
+      console.log(`Requesting route ${i + 1} with waypoints:`, waypoints);
       routeRequests.push(
         directionsClient
           .getDirections({
@@ -89,7 +105,18 @@ export const getDirections = async (req: Request, res: Response) => {
     }
 
     const responses = await Promise.all(routeRequests);
-    const routes = responses.map((response) => response.body.routes[0]);
+    console.log("Received route responses:", responses.length);
+
+    const routes = responses
+      .map((response, index) => {
+        if (!response.body.routes.length) {
+          console.warn(`No route found for request ${index + 1}`);
+        }
+        return response.body.routes[0];
+      })
+      .filter(Boolean);
+
+    console.log("Generated routes:", routes.length);
 
     // Add distance property if it's missing
     const enrichedRoutes = routes.map((route) => {
@@ -112,6 +139,7 @@ export const getDirections = async (req: Request, res: Response) => {
     // Select the top 10 routes closest to the desired distance
     const bestRoutes = enrichedRoutes.slice(0, 10);
 
+    console.log("Best routes selected:", bestRoutes);
     res.json({ routes: bestRoutes });
   } catch (error) {
     console.error("Error fetching directions:", error);

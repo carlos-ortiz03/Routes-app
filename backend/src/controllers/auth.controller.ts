@@ -23,12 +23,15 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Ensure the cookie is only sent over HTTPS in production
       sameSite: "strict",
+      maxAge: 6 * 60 * 60 * 1000, // 6 hours in milliseconds
     });
 
-    res.status(201).json({
-      user: newUser,
-      message: "Account created successfully, redirecting to home page",
-    });
+    res
+      .status(201)
+      .json({
+        user: newUser,
+        message: "Account created successfully, redirecting to home page",
+      });
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(400).json({ error: error.message });
@@ -64,6 +67,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Ensure the cookie is only sent over HTTPS in production
       sameSite: "strict",
+      maxAge: 6 * 60 * 60 * 1000, // 6 hours in milliseconds
     });
 
     res.status(200).json({ user, message: "Logged in successfully" });
@@ -72,10 +76,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const logout = (req: Request, res: Response): void => {
+export const logout = (req: Request, res: Response) => {
   res.clearCookie("access_token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Ensure the cookie is only sent over HTTPS in production
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
   res.status(200).json({ message: "Logged out successfully" });

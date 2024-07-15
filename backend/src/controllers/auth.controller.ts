@@ -37,15 +37,17 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email, username: user.username }, // include username in JWT payload
+      { id: user._id, email: user.email, username: user.username },
       process.env.JWT_SECRET as string,
       { expiresIn: "1h" }
     );
 
+    console.log("Setting cookie with token");
+
     res.cookie("access_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Ensure the cookie is only sent over HTTPS in production
-      sameSite: "strict",
+      secure: true, // Set secure to true for production
+      sameSite: "none", // Set SameSite to None for cross-site cookies
     });
 
     res

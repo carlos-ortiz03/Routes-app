@@ -10,7 +10,23 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, email, password: hashedPassword });
     await newUser.save();
-    res.status(201).json(newUser);
+
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email, username: newUser.username },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1h" }
+    );
+
+    res.cookie("access_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Ensure the cookie is only sent over HTTPS in production
+      sameSite: "strict",
+    });
+
+    res.status(201).json({
+      user: newUser,
+      message: "Account created successfully, redirecting to home page",
+    });
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(400).json({ error: error.message });
@@ -42,21 +58,23 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       { expiresIn: "1h" }
     );
 
-    console.log("Setting cookie with token");
-
     res.cookie("access_token", token, {
       httpOnly: true,
-      secure: true, // Set secure to true for production
-      sameSite: "none", // Set SameSite to None for cross-site cookies
+      secure: process.env.NODE_ENV === "production", // Ensure the cookie is only sent over HTTPS in production
+      sameSite: "strict",
     });
 
-    res
-      .status(200)
-      .json({
-        user: { username: user.username, email: user.email },
-        message: "Logged in successfully",
-      });
+    res.status(200).json({ user, message: "Logged in successfully" });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
+};
+
+export const logout = (req: Request, res: Response): void => {
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 };

@@ -19,18 +19,21 @@ export const verifyUser = (
   const token = req.cookies.access_token;
 
   if (!token) {
-    console.log("No token found in cookies");
+    console.error("No token found in cookies");
     return next(errorHandler(401, "Unauthorized"));
   }
+
+  console.log("Verifying token:", token);
 
   jwt.verify(
     token,
     process.env.JWT_SECRET as string,
     ((err: VerifyErrors | null, decoded: JwtPayload | undefined) => {
       if (err) {
-        console.log("Error verifying token:", err);
+        console.error("Token verification error:", err);
         return next(errorHandler(401, "Unauthorized"));
       } else {
+        console.log("Token decoded:", decoded);
         if (
           decoded &&
           typeof decoded === "object" &&
@@ -43,9 +46,9 @@ export const verifyUser = (
             email: decoded.email as string,
             username: decoded.username as string,
           };
-          console.log("User authenticated:", req.user);
           next();
         } else {
+          console.error("Decoded token does not contain required fields");
           return next(errorHandler(401, "Unauthorized"));
         }
       }

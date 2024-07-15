@@ -16,22 +16,22 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign(
       { id: newUser._id, email: newUser.email, username: newUser.username },
       process.env.JWT_SECRET as string,
-      { expiresIn: TOKEN_EXPIRATION_TIME }
+      { expiresIn: "6h" }
     );
+
+    console.log("Setting cookie with token after signup");
 
     res.cookie("access_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Ensure the cookie is only sent over HTTPS in production
-      sameSite: "strict",
-      maxAge: 6 * 60 * 60 * 1000, // 6 hours in milliseconds
+      secure: process.env.NODE_ENV === "production", // Set secure to true for production
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Set SameSite to None for cross-site cookies in production
+      maxAge: 6 * 60 * 60 * 1000, // 6 hours
     });
 
-    res
-      .status(201)
-      .json({
-        user: newUser,
-        message: "Account created successfully, redirecting to home page",
-      });
+    res.status(201).json({
+      user: { username: newUser.username, email: newUser.email },
+      message: "Signed up successfully",
+    });
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(400).json({ error: error.message });
@@ -60,17 +60,22 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign(
       { id: user._id, email: user.email, username: user.username },
       process.env.JWT_SECRET as string,
-      { expiresIn: TOKEN_EXPIRATION_TIME }
+      { expiresIn: "6h" }
     );
+
+    console.log("Setting cookie with token");
 
     res.cookie("access_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Ensure the cookie is only sent over HTTPS in production
-      sameSite: "strict",
-      maxAge: 6 * 60 * 60 * 1000, // 6 hours in milliseconds
+      secure: process.env.NODE_ENV === "production", // Set secure to true for production
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Set SameSite to None for cross-site cookies in production
+      maxAge: 6 * 60 * 60 * 1000, // 6 hours
     });
 
-    res.status(200).json({ user, message: "Logged in successfully" });
+    res.status(200).json({
+      user: { username: user.username, email: user.email },
+      message: "Logged in successfully",
+    });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }

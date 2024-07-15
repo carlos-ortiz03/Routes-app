@@ -1,21 +1,21 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { login } from "../../slices/authSlice";
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 interface LoginProps {
   setShowForm: React.Dispatch<React.SetStateAction<"login" | "signup" | null>>;
 }
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const Login: React.FC<LoginProps> = ({ setShowForm }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +34,7 @@ const Login: React.FC<LoginProps> = ({ setShowForm }) => {
           email: response.data.user.email,
         })
       );
-      navigate("/home"); // Redirect to home page
+      navigate("/home");
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
         setError(error.response.data.error);
@@ -45,7 +45,7 @@ const Login: React.FC<LoginProps> = ({ setShowForm }) => {
   };
 
   return (
-    <div className="bg-gray-700 bg-opacity-20 p-6 rounded-lg shadow-lg max-w-md mx-auto border-4 border-green-700">
+    <div className="bg-white bg-opacity-80 p-6 rounded-lg shadow-lg max-w-md mx-auto border border-green-700 text-black">
       <h2 className="text-2xl font-raleway mb-4 text-green-700">Login</h2>
       <form onSubmit={handleSubmit}>
         <input
@@ -53,14 +53,14 @@ const Login: React.FC<LoginProps> = ({ setShowForm }) => {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 mb-4 rounded-full border border-green-700 bg-transparent text-center"
+          className="w-full p-2 mb-4 rounded border border-green-700"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 mb-4 rounded-full border border-green-700 bg-transparent text-center"
+          className="w-full p-2 mb-4 rounded border border-green-700"
         />
         <button
           type="submit"

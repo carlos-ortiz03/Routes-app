@@ -1,6 +1,6 @@
 # RouteCrafter
 
-RouteCrafter is a web application designed to help users generate custom routes for walking, cycling, or driving. Built using the MERN stack (MongoDB, Express, React, Node.js) and powered by the Mapbox API, RouteCrafter allows users to specify the distance they want to travel (in miles or kilometers) and their preferred mode of transportation. The app then generates a closed-loop route, making it perfect for those who want to explore new areas or plan their workouts.
+RouteCrafter is a web application designed to help users generate custom routes for walking, cycling, or driving. Built using the MERN stack (MongoDB, Express, React, Node.js) and powered by the Mapbox API, RouteCrafter allows users to specify the distance they want to travel (in miles or kilometers) and their preferred mode of transportation. The app then generates a closed-loop route, making it perfect for those who want to explore new areas or plan their workouts. The user interface was designed in close collaboration with a designer, with whom I met with two times per week to review progress and make strategic decisions. We prioritized features to ensure the most critical ones were implemented within the project’s timeline constraints, resulting in a user-friendly and visually appealing experience.
 
 ## Live Demo
 
@@ -28,7 +28,6 @@ Check out the live demo of RouteCrafter [here](https://routecrafter.vercel.app/)
 ### Timeline
 
 - **June to July**: Project development and completion.
-- Collaborated with a designer to create a user-friendly and visually appealing interface.
 
 ### Main Challenges and Solutions
 
@@ -45,4 +44,4 @@ Check out the live demo of RouteCrafter [here](https://routecrafter.vercel.app/)
 - **Algorithm Development**: Improved skills in algorithm design by creating a solution for generating closed-loop routes with Mapbox.
 - **Monorepo Management**: Gained experience in handling complex deployments within a monorepo, including managing dependencies and configurations.
 - **REST API Development**: Developed a REST API in the backend to enable the frontend to access and interact with data stored in the MongoDB database.
-- **Collaboration**: Enhanced collaboration skills by working closely with a designer to ensure the user interface was both functional and aesthetically pleasing.
+- **Collaboration**: Enhanced collaboration skills by working closely with a designer. We prioritized features strategically to fit within the project’s timeline constraints, ensuring a well-rounded and user-friendly final product.
